@@ -67,41 +67,55 @@ unsigned h_mul(unsigned x, unsigned i, unsigned B)
 
 string* criar_hash(unsigned B){
 
-    string* tabela_hash = malloc(sizeof(string) * B);
-
+    string* tabela_hash = calloc(sizeof(string), B);
     // tabela_hash[i] == null representa bucket vazio
-    for(int i = 0; i < B; i++)
-        tabela_hash[i] = NULL;
 
     return tabela_hash;
 }
 
-int inserir_hash_div(string* tabela_hash, unsigned B, unsigned* colisoes, string insercao){
+
+int inserir_hash(string* tabela_hash, unsigned B, unsigned* colisoes, string insercao, bool is_div){
 
     unsigned convertido = converter(insercao);
-    int i = 0;
-    int index = h_div(convertido, i, B);
+    int index;
 
-    while(i < B){
+    for(int i = 0; i < B; i++){
+
+        if(is_div){
+            index = h_div(convertido, i, B);
+        } else {
+            index = h_mul(convertido, i, B);
+        }
+
         if(tabela_hash[index] == NULL){
-            tabela_hash[index] = malloc(sizeof(insercao));
+            tabela_hash[index] = malloc(sizeof(char) * MAX_STRING_LEN);
             strcpy(tabela_hash[index], insercao);
             return 0; // Inserido
         }
+
         if(!strcmp(tabela_hash[index], insercao)){
             return 0; // Elemento já presente
         }
-        index = h_div(convertido, ++i, B);
-        (*colisoes)++;
+
+        (*colisoes)++; // Colisao, continua insercao
     }
 }
 
-int buscar_hash_div(string* tabela_hash, unsigned B, int* encontrados, string buscado){
+int buscar_hash(string* tabela_hash, unsigned B, int* encontrados, string buscado, bool is_div){
 
     unsigned convertido = converter(buscado);
-    int i = 0;
-    int index = h_div(convertido, i, B);
-    while(i < B){
+    int index;
+
+    
+
+    for(int i = 0; i < B; i++){
+
+        if(is_div){
+            index = h_div(convertido, i, B);
+        } else {
+            index = h_mul(convertido, i, B);
+        }
+
         if(tabela_hash[index] == NULL){
             return 0; // Nao encontrado
         }
@@ -110,7 +124,6 @@ int buscar_hash_div(string* tabela_hash, unsigned B, int* encontrados, string bu
             (*encontrados)++;
             return index; // Elemento encontrado
         }
-        index = h_div(convertido, ++i, B);
     }
     return 1; // Não encontrado
 }
@@ -138,7 +151,7 @@ int main(int argc, char const *argv[])
     inicia_tempo();
     for (int i = 0; i < N; i++) {
         // inserir insercoes[i] na tabela hash
-        inserir_hash_div(tabela_hash_div, B, &colisoes_h_div, insercoes[i]);
+        inserir_hash(tabela_hash_div, B, &colisoes_h_div, insercoes[i], TRUE);
     }
     double tempo_insercao_h_div = finaliza_tempo();
 
@@ -146,21 +159,27 @@ int main(int argc, char const *argv[])
     inicia_tempo();
     for (int i = 0; i < M; i++) {
         // buscar consultas[i] na tabela hash
-        buscar_hash_div(tabela_hash_div, B, &encontrados_h_div, consultas[i]);
+        buscar_hash(tabela_hash_div, B, &encontrados_h_div, consultas[i], TRUE);
     }
     double tempo_busca_h_div = finaliza_tempo();
 
     // limpa a tabela hash com hash por divisão
+    for (int i = 0; i < B; i++){
+        // if(tabela_hash_div[i] != NULL)s
+            free(tabela_hash_div[i]);
+    }
     free(tabela_hash_div);
 
 
 
     // cria tabela hash com hash por multiplicação
+    string* tabela_hash_mul = criar_hash(B);
 
     // inserção dos dados na tabela hash usando hash por multiplicação
     inicia_tempo();
     for (int i = 0; i < N; i++) {
         // inserir insercoes[i] na tabela hash
+        inserir_hash(tabela_hash_mul, B, &colisoes_h_mul, insercoes[i], FALSE);
     }
     double tempo_insercao_h_mul = finaliza_tempo();
 
@@ -168,11 +187,28 @@ int main(int argc, char const *argv[])
     inicia_tempo();
     for (int i = 0; i < M; i++) {
         // buscar consultas[i] na tabela hash
+        buscar_hash(tabela_hash_mul, B, &encontrados_h_mul, consultas[i], FALSE);
     }
     double tempo_busca_h_mul = finaliza_tempo();
 
     // limpa a tabela hash com hash por multiplicação
+    for (int i = 0; i < B; i++){
+        // if(tabela_hash_mul[i] != NULL)
+            free(tabela_hash_mul[i]);
+    }
+    free(tabela_hash_mul);
 
+    // limpa insercoes
+    for (int i = 0; i < N; i++){
+        free(insercoes[i]);
+    }
+    free(insercoes);
+
+    // limpa consultas
+    for (int i = 0; i < N; i++){
+        free(consultas[i]);
+    }
+    free(consultas);
 
 
     printf("Hash por Divisão\n");
@@ -181,11 +217,11 @@ int main(int argc, char const *argv[])
     printf("Tempo de busca      : %fs\n", tempo_busca_h_div);
     printf("Itens encontrados   : %d\n", encontrados_h_div);
     printf("\n");
-    // printf("Hash por Multiplicação\n");
-    // printf("Colisões na inserção: %d\n", colisoes_h_mul);
-    // printf("Tempo de inserção   : %fs\n", tempo_insercao_h_mul);
-    // printf("Tempo de busca      : %fs\n", tempo_busca_h_mul);
-    // printf("Itens encontrados   : %d\n", encontrados_h_mul);
+    printf("Hash por Multiplicação\n");
+    printf("Colisões na inserção: %d\n", colisoes_h_mul);
+    printf("Tempo de inserção   : %fs\n", tempo_insercao_h_mul);
+    printf("Tempo de busca      : %fs\n", tempo_busca_h_mul);
+    printf("Itens encontrados   : %d\n", encontrados_h_mul);
 
     return 0;
 }
