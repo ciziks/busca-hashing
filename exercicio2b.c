@@ -5,7 +5,6 @@
 #include <string.h>
 #include <math.h>
 
-// Responsável: PEDRO
 // Definição das variaveis que controlam a medição de tempo
 clock_t _ini, _fim;
 
@@ -19,7 +18,7 @@ typedef char * string;
 
 #define MAX_STRING_LEN 20
 
-// Converte uma String em sua representação inteira
+
 unsigned converter(string s) {
    unsigned h = 0;
    for (int i = 0; s[i] != '\0'; i++) 
@@ -27,7 +26,6 @@ unsigned converter(string s) {
    return h;
 }
 
-// Leitura do Arquivo de Strings
 string* ler_strings(const char * arquivo, const int n)
 {
     FILE* f = fopen(arquivo, "r");
@@ -57,17 +55,72 @@ double finaliza_tempo()
 }
 
 
-// Função hash por divisão
 unsigned h_div(unsigned x, unsigned i, unsigned B)
 {
     return ((x % B) + i) % B;
 }
 
-// Função hash por multiplicação
 unsigned h_mul(unsigned x, unsigned i, unsigned B)
 {
     const double A = 0.6180;
     return  ((int) ((fmod(x * A, 1) * B) + i)) % B;
+}
+
+unsigned h(unsigned x, unsigned i, unsigned B)
+{
+    return (h_mul(x, i, B) + i*h_div(x, i, B)) % B;
+}
+
+string* criar_hash(unsigned B){
+
+    string* tabela_hash = calloc(sizeof(string), B);
+    // tabela_hash[i] == null representa bucket vazio
+
+    return tabela_hash;
+}
+
+int inserir_hash(string* tabela_hash, unsigned B, unsigned* colisoes, string insercao){
+
+    unsigned convertido = converter(insercao);
+    int index;
+
+    for(int i = 0; i < B; i++){
+
+        index = h(convertido, i, B);
+
+        if(tabela_hash[index] == NULL){
+            tabela_hash[index] = malloc(sizeof(char) * MAX_STRING_LEN);
+            strcpy(tabela_hash[index], insercao);
+            return 0; // Inserido
+        }
+
+        if(!strcmp(tabela_hash[index], insercao)){
+            return 0; // Elemento já presente
+        }
+
+        (*colisoes)++; // Colisao, continua insercao
+    }
+}
+
+int buscar_hash(string* tabela_hash, unsigned B, int* encontrados, string buscado){
+
+    unsigned convertido = converter(buscado);
+    int index;
+
+    for(int i = 0; i < B; i++){
+
+        index = h(convertido, i, B);
+
+        if(tabela_hash[index] == NULL){
+            return 0; // Nao encontrado
+        }
+        
+        if(!strcmp(tabela_hash[index], buscado)){
+            (*encontrados)++;
+            return index; // Elemento encontrado
+        }
+    }
+    return 1; // Não encontrado
 }
 
 int main(int argc, char const *argv[])
@@ -78,25 +131,25 @@ int main(int argc, char const *argv[])
 
     unsigned colisoes = 0;
     unsigned encontrados = 0;
-    
-    // Leitura dos Arquivos de Entrada
+
     string* insercoes = ler_strings("strings_entrada.txt", N);
     string* consultas = ler_strings("strings_busca.txt", M);
 
 
-    // Todo: Criar tabela hash com hash por hash duplo
+    // cria tabela hash com hash por hash duplo
+    string* tabela_hash = criar_hash(B);
 
     // inserção dos dados na tabela hash
     inicia_tempo();
     for (int i = 0; i < N; i++) {
-        // inserir insercoes[i] na tabela hash
+        inserir_hash(tabela_hash, B, &colisoes, insercoes[i]);
     }
     double tempo_insercao = finaliza_tempo();
 
     // busca dos dados na tabela hash
     inicia_tempo();
     for (int i = 0; i < M; i++) {
-        // buscar consultas[i] na tabela hash
+        buscar_hash(tabela_hash, B, &encontrados, consultas[i]);
     }
     double tempo_busca = finaliza_tempo();
 
