@@ -94,6 +94,7 @@ int inserir_hash(string* tabela_hash, unsigned B, unsigned* colisoes, string ins
         }
 
         if(!strcmp(tabela_hash[index], insercao)){
+            (*colisoes) -= i;
             return 0; // Elemento já presente
         }
 

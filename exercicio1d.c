@@ -66,32 +66,40 @@ void quicksort(int v[], int ini, int fim){
 
 int* criar_indice(int* v,int index_size, int n){
 
-    int* indice = malloc(sizeof(int) * n/index_size);
+    int* indice = malloc(sizeof(int) * index_size);
 
-    for(int i = 0; i < n/index_size; i++){
-        indice[i] = v[i*index_size];
+    for(int i = 0; i < index_size; i++){
+        indice[i] = v[i*(n/index_size)];
     }
 
     return indice;
 }
 
-int busca_sequencial_index(int* entrada, int tamanho_entrada, int* indice, int index_size, int* encontrados, int buscado){
+bool busca_sequencial_index(int* entrada, int tamanho_entrada, int* indice, int index_size, int buscado){
     
     int i = 0;
-    while (buscado > indice[i] && i < tamanho_entrada/index_size)
+    while (buscado >= indice[i] && i < index_size)
         i++;
     
-    for(int j = (i - 1) * index_size; j < i * index_size; j++){
-        if (entrada[j] == buscado){
-            (*encontrados)++;
-            return j;
+    if(i==0)
+    {
+        if(buscado = entrada[0])
+        {
+            return TRUE;
         }
-        if (entrada[j] > buscado)
-            return -1;
+        else
+            return FALSE;
     }
-    return -1;
-}
 
+
+    for(int j = (i - 1) * tamanho_entrada/index_size; j < i * tamanho_entrada/index_size; j++){
+        
+        if (entrada[j] == buscado){
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
 
 int main(int argc, char const *argv[])
 {
@@ -101,9 +109,10 @@ int main(int argc, char const *argv[])
 
     int* entradas = ler_inteiros("inteiros_entrada.txt", N);
     int* consultas = ler_inteiros("inteiros_busca.txt", N);
-    
+
     // ordenar entrada
     quicksort(entradas, 0, N-1);
+
 
     // criar tabela de indice
     int* indice = criar_indice(entradas, index_size, N);
@@ -112,7 +121,8 @@ int main(int argc, char const *argv[])
     inicia_tempo();
     for (int i = 0; i < N; i++) {
         // buscar o elemento consultas[i] na entrada
-        busca_sequencial_index(entradas, N, indice, index_size, &encontrados, consultas[i]);
+        if(busca_sequencial_index(entradas, N, indice, index_size, consultas[i]))
+            encontrados++;
     }
     double tempo_busca = finaliza_tempo();
 
