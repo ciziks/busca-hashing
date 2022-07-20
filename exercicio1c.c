@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-// Responsável: LUCAS
 // Definição das variaveis que controlam a medição de tempo
 clock_t _ini, _fim;
 
@@ -11,6 +10,7 @@ unsigned char typedef bool;
 #define TRUE 1
 #define FALSE 0
 
+// Leitura do Arquivo de Inteiros
 int *ler_inteiros(const char *arquivo, const int n)
 {
     FILE *f = fopen(arquivo, "r");
@@ -45,7 +45,7 @@ bool busca_sequencial_transposicao(int tabela[], int tamanho, int elemento)
         if (tabela[i] == elemento) // Encontrou o elemento
         {
             // Coletando posição anterior
-            posicao_anterior = i - 1; 
+            posicao_anterior = i - 1;
 
             // Se não for a primeira posição, realiza Transposição
             if (posicao_anterior != -1)
@@ -63,6 +63,7 @@ bool busca_sequencial_transposicao(int tabela[], int tamanho, int elemento)
 
 int main(int argc, char const *argv[])
 {
+    bool encontrou;
     const int N = 50000;
     unsigned encontrados = 0;
 
@@ -74,7 +75,7 @@ int main(int argc, char const *argv[])
     for (int i = 0; i < N; i++)
     {
         // buscar o elemento consultas[i] na entrada
-        bool encontrou = busca_sequencial_transposicao(entradas, N, consultas[i]);
+        encontrou = busca_sequencial_transposicao(entradas, N, consultas[i]);
         if (encontrou)
             encontrados++;
     }

@@ -131,17 +131,15 @@ Lista *criar_hash(unsigned B)
     Lista *tabela_hash = malloc(B * sizeof(Lista));
 
     for (int i = 0; i < B; i++)
-    {
         lista_criar(&tabela_hash[i]); // Criando Bucket com Lista vazia
-    }
     return tabela_hash;
 }
 
 // Destrói Tabela Hash
 int destroi_hash(Lista *tabela_hash, unsigned B)
 {
-    // for (int i = 0; i < B; i++)
-    //     lista_apagar(&tabela_hash[i]);
+    for (int i = 0; i < B; i++)
+        lista_apagar(&tabela_hash[i]);
 }
 
 // Método para inserir na Tabela Hash (Aberto)

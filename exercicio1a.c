@@ -7,14 +7,15 @@ clock_t _ini, _fim;
 
 // Definição do tipo booleano
 unsigned char typedef bool;
-#define TRUE  1
+#define TRUE 1
 #define FALSE 0
 
-int* ler_inteiros(const char * arquivo, const int n)
+// Leitura do Arquivo de Inteiros
+int *ler_inteiros(const char *arquivo, const int n)
 {
-    FILE* f = fopen(arquivo, "r");
+    FILE *f = fopen(arquivo, "r");
 
-    int * inteiros = (int *) malloc(sizeof(int) * n);
+    int *inteiros = (int *)malloc(sizeof(int) * n);
 
     for (int i = 0; !feof(f); i++)
         fscanf(f, "%d\n", &inteiros[i]);
@@ -33,21 +34,35 @@ void inicia_tempo()
 double finaliza_tempo()
 {
     _fim = clock();
-    return ((double) (_fim - _ini)) / CLOCKS_PER_SEC;
+    return ((double)(_fim - _ini)) / CLOCKS_PER_SEC;
+}
+
+// Método de Busca Sequencial Simples
+bool busca_sequencial_simples(int *tabela, int tamanho, int elemento)
+{
+    for (int i = 0; i < tamanho; i++)
+        if (tabela[i] == elemento)
+            return TRUE;
+    return FALSE;
 }
 
 int main(int argc, char const *argv[])
 {
+    bool encontrou;
     const int N = 50000;
     unsigned encontrados = 0;
 
-    int* entradas = ler_inteiros("inteiros_entrada.txt", N);
-    int* consultas = ler_inteiros("inteiros_busca.txt", N);
+    int *entradas = ler_inteiros("inteiros_entrada.txt", N);
+    int *consultas = ler_inteiros("inteiros_busca.txt", N);
 
     // realiza busca sequencial
     inicia_tempo();
-    for (int i = 0; i < N; i++) {
+    for (int i = 0; i < N; i++)
+    {
         // buscar o elemento consultas[i] na entrada
+        encontrou = busca_sequencial_simples(entradas, N, consultas[i]);
+        if (encontrou)
+            encontrados++;
     }
     double tempo_busca = finaliza_tempo();
 
