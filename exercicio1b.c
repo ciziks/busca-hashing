@@ -43,7 +43,7 @@ bool busca_sequencial_mover_frente(int *tabela, int tamanho, int elemento)
     int index = 0, aux1, aux2;
 
     // Percorre a lista até encontrar o elemento
-    while (tabela[index] != elemento)
+    while (tabela[index] != elemento && index < tamanho)
         index++;
 
     // Elemento não encontrado
@@ -56,10 +56,10 @@ bool busca_sequencial_mover_frente(int *tabela, int tamanho, int elemento)
         aux1 = tabela[0];
 
         // Realocando elementos para frente
-        for (int j = 1; j < index + 1; j++)
+        for (int j = 0; j < index; j++)
         {
-            aux2 = tabela[j];
-            tabela[j] = aux1;
+            aux2 = tabela[j + 1];
+            tabela[j + 1] = aux1;
             aux1 = aux2;
         }
 
